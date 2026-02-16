@@ -1,5 +1,5 @@
 
-# 🚀 Dozy — Anti-Procrastination Using ML for Context aware Productivity
+# 🐥 Dozy — Anti-Procrastination Using ML for Context aware Productivity
 
 Dozy is a context-aware productivity assistant that combines:
 - 🎯 Focus Timer
@@ -29,10 +29,9 @@ Built using **Flutter (Web/Desktop)** + **FastAPI** + **Supabase**.
 - Background live video support
 - Calls ML backend to predict procrastination risk
 - AI feedback when stopping mid-session
-  ## 📊 Focus Screens
-  ![Focus Running](assets/focus_on_completion.png)
-  ![Focus Stopped](assets/focus_on_procrastination.png)
-
+  ## 📊 Focus Screen on completion
+  ![Focus Running](assets/focus%20on%20completion.png)
+  
 ### 🧠 ML-Powered Procrastination Detection
 - Trained on behavioral & task data
 - Returns:
@@ -40,6 +39,8 @@ Built using **Flutter (Web/Desktop)** + **FastAPI** + **Supabase**.
   - `risk_score`
 - High recall & F1 optimized model
 - Integrated via FastAPI
+  ## 📊 Focus Screen on Procrastination
+  ![Focus Stopped](assets/focus%20on%20procrastination.png)
 
 ### 🎯 Goals System
 - Add / delete goals
