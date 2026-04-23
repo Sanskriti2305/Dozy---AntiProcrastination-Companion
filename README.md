@@ -133,7 +133,7 @@ source venv/bin/activate
 ### Step 3 — Install Dependencies
 
 ```bash
-pip install fastapi uvicorn scikit-learn pandas joblib
+pip install fastapi uvicorn scikit-learn pandas joblib xgboost
 ```
 
 ### Step 4 — Start Server
