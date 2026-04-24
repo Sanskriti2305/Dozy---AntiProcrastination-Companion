@@ -14,8 +14,9 @@ class FocusScreen extends StatefulWidget {
   State<FocusScreen> createState() => _FocusScreenState();
 }
 
+// *** CHANGE 1: Added WidgetsBindingObserver to the mixin list ***
 class _FocusScreenState extends State<FocusScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
 
   VideoPlayerController? _videoController;
   bool _videoReady = false;
@@ -26,7 +27,10 @@ class _FocusScreenState extends State<FocusScreen>
   int _remainingSeconds = 1500;
 
   bool _isRunning = false;
-  bool _hasStartedOnce = false; // NEW
+  bool _hasStartedOnce = false;
+
+  // *** CHANGE 2: New state variable for tab switch toggle (default: allowed) ***
+  bool _tabSwitchAllowed = true;
 
   double? _riskScore;
 
@@ -39,6 +43,9 @@ class _FocusScreenState extends State<FocusScreen>
   @override
   void initState() {
     super.initState();
+
+    // *** CHANGE 3: Register observer so we get lifecycle callbacks ***
+    WidgetsBinding.instance.addObserver(this);
 
     _videoController =
         VideoPlayerController.asset("assets/focusVideo.mp4")
@@ -54,11 +61,22 @@ class _FocusScreenState extends State<FocusScreen>
           ..repeat(reverse: true);
   }
 
+  // *** CHANGE 4: Listen for app going to background (tab switch / app switch) ***
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    // When tab switch is NOT allowed and user leaves the app, pause the timer
+    if (!_tabSwitchAllowed && state == AppLifecycleState.inactive) {
+      if (_isRunning) {
+        _stop();
+      }
+    }
+  }
+
   // ---------------- START / RESUME ----------------
   void _start() async {
     if (_isRunning) return;
 
-    // Only call ML the first time session starts
     if (!_hasStartedOnce) {
       try {
         final result = await ApiService.predict(
@@ -85,7 +103,7 @@ class _FocusScreenState extends State<FocusScreen>
 
     _isRunning = true;
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async{
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
       if (_remainingSeconds > 0) {
         setState(() => _remainingSeconds--);
       } else {
@@ -100,21 +118,20 @@ class _FocusScreenState extends State<FocusScreen>
           );
           final completed = _remainingSeconds == 0;
 
-        if (completed) {
-          _showSuccessFeedback();
-        } else {
-          _showDozyFeedback();
-        }
+          if (completed) {
+            _showSuccessFeedback();
+          } else {
+            _showDozyFeedback();
+          }
         }
       }
-
     });
   }
 
   // ---------------- PAUSE ----------------
   void _pause() {
     _timer?.cancel();
-    _isRunning = false;
+    setState(() => _isRunning = false);
   }
 
   // ---------------- STOP ----------------
@@ -150,7 +167,7 @@ class _FocusScreenState extends State<FocusScreen>
           "Moderate risk.\n\nTry:\n• Set smaller goals\n• Work in 25 min sprints\n• Lower coffee intake.";
     } else {
       message =
-          "Great focus discipline.\n\nKeep going. You’re in control.";
+          "Great focus discipline.\n\nKeep going. You're in control.";
     }
 
     showDialog(
@@ -255,7 +272,6 @@ class _FocusScreenState extends State<FocusScreen>
       },
     );
   }
-
 
   // ---------------- TIME FORMAT ----------------
   String get time {
@@ -396,6 +412,8 @@ class _FocusScreenState extends State<FocusScreen>
 
   @override
   void dispose() {
+    // *** CHANGE 5: Remove observer on dispose ***
+    WidgetsBinding.instance.removeObserver(this);
     _videoController?.dispose();
     _timer?.cancel();
     _glowController.dispose();
@@ -523,8 +541,36 @@ class _FocusScreenState extends State<FocusScreen>
                       const SizedBox(width: 20),
                       _controlButton("Stop", _stop),
                       const SizedBox(width: 20),
-                      _controlButton("Set Time",
-                          _showSetTimeDialog),
+                      _controlButton("Set Time", _showSetTimeDialog),
+                      const SizedBox(width: 20),
+
+                      // *** CHANGE 6: Tab Switch toggle button — same style as others ***
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _tabSwitchAllowed
+                              ? Colors.white.withOpacity(0.15)
+                              : const Color(0xFF7C8BFF).withOpacity(0.6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 28, vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _tabSwitchAllowed = !_tabSwitchAllowed;
+                          });
+                        },
+                        child: Text(
+                          _tabSwitchAllowed
+                              ? "Tab Switch: Allow"
+                              : "Tab Switch: Block",
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],
