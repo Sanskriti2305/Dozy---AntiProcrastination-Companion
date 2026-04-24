@@ -33,7 +33,7 @@ Built using **Flutter (Web/Desktop)** + **FastAPI** + **Supabase**.
    ## 📊 Set focus timer
   ![Focus Running](assets/focus.png)
   ## 📊 Focus Screen on completion
-  ![Focus Running](assets/focus%20on%20completion.png)
+  
   
 ### 🧠 ML-Powered Procrastination Detection
 - Trained on behavioral & task data
