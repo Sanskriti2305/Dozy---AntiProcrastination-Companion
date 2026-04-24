@@ -29,6 +29,9 @@ Built using **Flutter (Web/Desktop)** + **FastAPI** + **Supabase**.
 - Background live video support
 - Calls ML backend to predict procrastination risk
 - AI feedback when stopping mid-session
+- 
+   ## 📊 Set focus timer
+  ![Focus Running](assets/focus.png)
   ## 📊 Focus Screen on completion
   ![Focus Running](assets/focus%20on%20completion.png)
   
